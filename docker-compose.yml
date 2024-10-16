@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "8000:12000"
+    volumes:
+      - .:/app
+    environment:
+      - DJANGO_SETTINGS_MODULE=simple-django-app.settings
+    command: sh -c "python counter/manage.py migrate && python counter/manage.py runserver 0.0.0.0:12000"
+
