@@ -1,13 +1,48 @@
 version: '3.8'
 
 services:
-  web:
-    build: .
+  cool_counters:
+    build: ./cool_counters
+    container_name: cool_counters
+    restart: always
     ports:
-      - "8000:12000"
+      - 8000:12000
     volumes:
-      - .:/app
-    environment:
-      - DJANGO_SETTINGS_MODULE=simple-django-app.settings
-    command: sh -c "python counter/manage.py migrate && python counter/manage.py runserver 0.0.0.0:12000"
+      - cool_counters_data:/tmp    
+      
+    # environment:
+    #   - DJANGO_SETTINGS_MODULE=simple-django-app.settings
+    # command: sh -c "python counter/manage.py migrate && python counter/manage.py runserver 0.0.0.0:12000"
+    networks:
+      - mynet
+  
+
+  jenkins:
+    build: ./jenkins
+    image: jenkins
+    container_name: jenkins
+    restart: always
+    volumes:
+            # Carpeta base de Jenkins, contiene datos sensibles.
+            # Por ese motivo siempre hay que montarla en un volumen.
+            - jenkins-data:/var/jenkins_home
+            # La misma carpeta de Tomcat, se monta para que Jenkins pueda desplegar
+            # Las aplicaciones directamente
+            - cool_counters_data:/deploy
+    ports:
+      - 8082:8080
+
+    networks:
+      - mynet
+
+
+
+volumes:
+  cool_counters_data:
+  jenkins-data:
+
+  
+networks:
+  mynet:
+    driver: bridge
 
