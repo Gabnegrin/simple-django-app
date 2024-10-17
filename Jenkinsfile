@@ -1,32 +1,17 @@
 pipeline {
     agent any
-    environment {
-        DOCKER_COMPOSE = 'docker-compose -f docker-compose.yml'
-    }
     stages {
         stage('Build') {
             steps {
-                echo 'Navigating to project root and building the Docker image...'
-                sh 'cd $WORKSPACE && ${DOCKER_COMPOSE} build cool_counters'
-            }
-        }
-        stage('Test') {
-            steps {
-                echo 'Running Django tests...'
-                sh 'cd $WORKSPACE && ${DOCKER_COMPOSE} run cool_counters python manage.py test'
+                sh 'docker-compose up --build'
             }
         }
         stage('Deploy') {
             steps {
-                echo 'Deploying the Django application...'
-                sh 'cd $WORKSPACE && ${DOCKER_COMPOSE} up -d cool_counters'
+                sh 'cd cool/counters'
+                sh 'python manage.py migrate'
+                sh 'python manage.py runserver 0.0.0.0:12000'
             }
-        }
-    }
-    post {
-        always {
-            echo 'Cleaning up Docker resources...'
-            sh 'cd $WORKSPACE && ${DOCKER_COMPOSE} down'
         }
     }
 }
