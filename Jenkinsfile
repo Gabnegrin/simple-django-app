@@ -3,14 +3,18 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                sh './docker-compose up --build'
+                dir('simple-django-app') {
+                    sh './docker-compose up --build'
+                }
             }
         }
         stage('Deploy') {
             steps {
-                sh './cd cool/counters'
-                sh './python manage.py migrate'
-                sh './python manage.py runserver 0.0.0.0:12000'
+                dir('simple-django-app') {
+                    sh './cd cool/counters'
+                    sh './python manage.py migrate'
+                    sh './python manage.py runserver 0.0.0.0:12000'
+                }
             }
         }
     }
