@@ -1,21 +1,32 @@
-pipeline{
+pipeline {
     agent any
-    stages{
-        stage('build'){
-            steps{
-                sh './mvnw clean compile'
+    environment {
+        DOCKER_COMPOSE = 'docker-compose -f docker-compose.yml'
+    }
+    stages {
+        stage('Build') {
+            steps {
+                echo 'Building the Docker image for the Django app...'
+                sh "${DOCKER_COMPOSE} build cool_counters"
             }
         }
-        stage('test'){
-            steps{
-                sh './mvnw test'
+        stage('Test') {
+            steps {
+                echo 'Running tests...'
+                sh "${DOCKER_COMPOSE} run cool_counters python manage.py test"
             }
         }
-        stage('deploy'){
-            steps{
-                sh './mvnw package -Dmaven.test.skip'
-                sh 'cp ./target/app.war /deploy'
+        stage('Deploy') {
+            steps {
+                echo 'Deploying the application...'
+                sh "${DOCKER_COMPOSE} up -d cool_counters"
             }
+        }
+    }
+    post {
+        always {
+            echo 'Cleaning up Docker resources...'
+            sh "${DOCKER_COMPOSE} down"
         }
     }
 }
