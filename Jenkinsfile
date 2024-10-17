@@ -23,10 +23,4 @@ pipeline {
             }
         }
     }
-    post {
-        always {
-            echo 'Cleaning up Docker resources...'
-            sh "${DOCKER_COMPOSE} down"
-        }
-    }
 }
